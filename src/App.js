@@ -1,71 +1,75 @@
-import React from 'react';
+import React, { Component } from 'react';
+import Total from './components/total/Total';
+import History from './components/history/History';
+import Operation from './components/operation/Operation';
 
-function App() {
-  return (
-    <>
-      <header>
-        <h1>Кошелек</h1>
-        <h2>Калькулятор расходов</h2>
-    </header>
+class App extends Component {
 
-    <main>
-        <div className="container">
-            <section className="total">
-                <header className="total__header">
-                    <h3>Баланс</h3>
-                    <p className="total__balance">0 ₽</p>
-                </header>
-                <div className="total__main">
-                    <div className="total__main-item total__income">
-                        <h4>Доходы</h4>
-                        <p className="total__money total__money-income">
-                            +0 ₽
-                        </p>
-                    </div>
-                    <div className="total__main-item total__expenses">
-                        <h4>Расходы</h4>
-                        <p className="total__money total__money-expenses">
-                            -0 ₽
-                        </p>
-                    </div>
-                </div>
-            </section>
+  /* для хранения состояния в текущий момент -  создадим класс */
+  state = {
+      transactions: [],
+      description: '',
+      amount: '',
+    }
 
-            <section className="history">
-                <h3>История расходов</h3>
-                <ul className="history__list">
-                    <li className="history__item history__item-plus">Получил зарплату
-                        <span className="history__money">+30000 ₽</span>
-                        <button className="history__delete">x</button>
-                    </li>
+  addTransaction = add => {
 
-                    <li className="history__item  history__item-minus">Отдал долг
-                        <span className="history__money">-10000 ₽</span>
-                        <button className="history__delete">x</button>
-                    </li>
-                </ul>
-            </section>
+    //создадим копию массива с помощью спред оператор
+    const transactions = [...this.state.transactions];
+     
+    const transaction = {
+       id: `cmr${(+new Date).toString(16)}`, //быстро генерируем уникальный id
+       description: this.state.description,
+       amount: this.state.amount,
+       add //сюда попадает true / false
+    };
 
-            <section className="operation">
-                <h3>Новая операция</h3>
-                <form id="form">
-                    <label>
-                        <input type="text" className="operation__fields operation__name" placeholder="Наименование операции" />
-                    </label>
-                    <label>
-                        <input type="number" className="operation__fields operation__amount" placeholder="Введите сумму" />
-                    </label>
-                    <div className="operation__btns">
-                        <button type="submit" className="operation__btn operation__btn-subtract">РАСХОД</button>
-                        <button type="submit" className="operation__btn operation__btn-add">ДОХОД</button>
-                    </div>
+    //теперь можно в копию массива добавить объект, ктр-й создали
+    transactions.push(transaction);
 
-                </form>
-            </section>
-        </div>
-    </main>
-    </>
-  );
+    //и направим его в state
+    this.setState({
+      transactions,
+      description: '', //очищаем поле после ввода
+      amount: '',
+    });
+     
+  }
+  
+  /* описываем методы для передачи в Operation. 
+  На входе принимает e=элемент, на ктрм сработало событие */
+  addAmount = e => {
+    this.setState({ amount: e.target.value });
+  }
+
+  addDescription = e => {
+    this.setState({ description: e.target.value });
+  }
+  
+  render() {
+    return (
+      <>
+        <header>
+          <h1>Кошелек</h1>
+          <h2>Калькулятор расходов</h2>
+        </header>
+  
+        <main>
+          <div className="container">
+            <Total />
+            <History transactions={this.state.transactions} />
+            <Operation 
+              addTransaction={this.addTransaction} 
+              addAmount={this.addAmount}
+              addDescription={this.addDescription}
+              description={this.state.description} //передали обратно пустую строку
+              amount={this.state.amount}           //передали обратно пустую строку
+            />
+          </div>
+        </main>
+      </>
+    );
+  }
 }
 
 export default App;
