@@ -22,7 +22,7 @@ class App extends Component {
     {
        id: `cmr${(+new Date()).toString(16)}`, //быстро генерируем уникальный id
        description: this.state.description,
-       amount: this.state.amount,
+       amount: parseFloat(this.state.amount),
        add //сюда попадает true / false
     }
   ];
@@ -58,10 +58,10 @@ class App extends Component {
 
   //ф-ция итогового подсчета
   getTotalBalance() {
-   const resultIncome = this.getIncome();
-   const resultExpenses = this.getExpenses();
+   const resultIncome = this.getIncome().toFixed(2);
+   const resultExpenses = this.getExpenses().toFixed(2);
 
-   const totalBalance = resultIncome - resultExpenses;
+   const totalBalance = (resultIncome - resultExpenses).toFixed(2);
    
    //добавляем полученные результаты в setState
    this.setState({
@@ -69,6 +69,11 @@ class App extends Component {
     resultExpenses,
     totalBalance,
    });
+  }
+
+  //метод, отправляющий данные в local storage
+  addStorage() {
+    
   }
   
   render() {
