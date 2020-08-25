@@ -7,13 +7,21 @@ class App extends Component {
 
   /* для хранения состояния в текущий момент -  создадим класс */
   state = {
-      transactions: [],
+      transactions: JSON.parse(localStorage.getItem('calcMoney')) || [],
       description: '',
       amount: '',
       resultIncome: 0,
       resultExpenses: 0,
       totalBalance: 0,
   }
+
+componentWillMount() {
+  this.getTotalBalance();
+  }
+
+componentDidUpdate() {
+  this.addStorage();
+ }
 
   addTransaction = add => {
 
@@ -38,8 +46,15 @@ class App extends Component {
   /* описываем методы для передачи в Operation. 
   На входе принимает e=элемент, на ктрм сработало событие.
   ParseFloat - чтобы фиксировать число, а не строку */
+  /*addAmount = e => {
+    this.setState({ amount: e.target.value});
+  }*/
+
   addAmount = e => {
-    this.setState({ amount: parseFloat(e.target.value)});
+    let reg = /^[0-9]*(\.|,)?\d{0,2}$/;
+    if (reg.test(e.target.value)) {
+      this.setState({ amount: parseFloat(e.target.value)});
+    } else alert('введите корректное значение вида XXXX,XX')
   }
 
   addDescription = e => {
@@ -73,7 +88,12 @@ class App extends Component {
 
   //метод, отправляющий данные в local storage
   addStorage() {
-    
+    localStorage.setItem('calcMoney', JSON.stringify(this.state.transactions))
+  }
+
+  delTransaction = key => {
+    const transactions = this.state.transactions.filter(item => item.id !== key)
+    this.setState({ transactions }, this.getTotalBalance)
   }
   
   render() {
@@ -91,7 +111,10 @@ class App extends Component {
               resultIncome={this.state.resultIncome}
               totalBalance={this.state.totalBalance}
               />
-            <History transactions={this.state.transactions} />
+            <History 
+              transactions={this.state.transactions}
+              delTransaction={this.delTransaction}
+              />
             <Operation 
               addTransaction={this.addTransaction} 
               addAmount={this.addAmount}
